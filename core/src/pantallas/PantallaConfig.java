@@ -1,11 +1,18 @@
 package pantallas;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import elementos.Imagen;
 import elementos.Texto;
@@ -17,14 +24,15 @@ import utiles.Render;
 public class PantallaConfig implements Screen{
 
 	Imagen fondo;
-	Imagen rectArriba, rectMedio, rectNegro, barraVolumen, esferaVolumen, barraMusica, esferaMusica;
+	Imagen rectArriba, rectMedio, rectNegro, marcoTriangulo;
 	Imagen[] checkBoxes;
-	Imagen[] sliders;
 	Texto[] opcion;
 
 	Texto abrir1, abrir2;
 	Texto musica, volumen, particulas, numeros, politicas, preguntas, guardar, salir, resoluciones;
 	Imagen guardado;
+	
+	Texto[] resolucionesText;
 	
 	SpriteBatch b;
 	float contTiempo=0, alphaGuardado=0;
@@ -35,12 +43,26 @@ public class PantallaConfig implements Screen{
 	ShapeRenderer sr;
 	int cantCheckBoxes=2;
 	TecladoMouse entrada = new TecladoMouse();
+	Stage stage;
+	Slider musicaSlide, volumenSlide;
+	Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
+	InputMultiplexer inputMultiplexer;
+	Preferences preferencias;
 	
 	@Override
 	public void show() {
 		sr = new ShapeRenderer();
+
+		preferencias = Gdx.app.getPreferences("config");
+
 		b = Render.batch;
-		Gdx.input.setInputProcessor(entrada);
+		stage = new Stage();
+		inputMultiplexer = new InputMultiplexer();
+		inputMultiplexer.addProcessor(stage);
+        inputMultiplexer.addProcessor(entrada);
+		Gdx.input.setInputProcessor(inputMultiplexer);
+		
+		
 		rectArriba = new Imagen(Recursos.RectanguloAzul, Config.ancho, 100);
 		rectArriba.setPosition(0, 620);
 		rectArriba.setAlpha(0.9f);
@@ -91,18 +113,7 @@ public class PantallaConfig implements Screen{
 		fondo= new Imagen(Recursos.FondoMenu, Config.ancho, Config.alto);
 
 		
-		barraVolumen = new Imagen(Recursos.BarraAzul, 300, 16);
-		barraVolumen.setPosition(538, volumen.getY()-volumen.getAlto());
-		
-		esferaVolumen = new Imagen(Recursos.EsferaAzul, 24, 24);
-		esferaVolumen.setPosition(530, barraVolumen.getY()-4);
-		
-		barraMusica = new Imagen(Recursos.BarraAzul, 300, 16);
-		barraMusica.setPosition(538, musica.getY()-musica.getAlto());
-		
-		esferaMusica = new Imagen(Recursos.EsferaAzul, 24, 24);
-		esferaMusica.setPosition(530, barraMusica.getY()-4);
-		
+
 		checkBoxes = new Imagen[cantCheckBoxes];
 		checkBoxes[0] = new Imagen(Recursos.MarcoRojoPaloma,30, 30);
 		checkBoxes[0].setPosition(538, particulas.getY()- checkBoxes[0].getAlto()+5);
@@ -130,6 +141,57 @@ public class PantallaConfig implements Screen{
 		opcion = new Texto[cantopc];
 		opcion[0]=salir;
 		opcion[1]=guardar;
+		marcoTriangulo = new Imagen(Recursos.MarcoTriangulo, 136, resoluciones.getAlto()+10);
+		marcoTriangulo.setPosition(538, resoluciones.getY()-5-resoluciones.getAlto());
+		musicaSlide = new Slider(0, 100, 2, false, skin );
+		volumenSlide = new Slider(0, 100, 2, false, skin );
+		musicaSlide.setValue(Config.musica);
+		volumenSlide.setValue(Config.efectos);
+		musicaSlide.setWidth(300);
+		volumenSlide.setWidth(300);
+		musicaSlide.setPosition(538, musica.getY()-musica.getAlto());
+		volumenSlide.setPosition(538, volumen.getY()-volumen.getAlto());
+		
+		volumenSlide.addListener(new ChangeListener() {
+		    @Override
+		    public void changed(ChangeEvent event, Actor actor) {
+		        // Este método se llama cada vez que cambia el valor del slider
+		        float volume = volumenSlide.getValue(); // Obtener el valor del slider
+		        // Ajustar el volumen de la música a través del AudioManager u otro gestor de audio
+		        Config.efectos=volume;
+		        Render.clickEffect.setVolume(0, volume);
+		        Render.hitEffect.setVolume(0, volume);
+		    }
+		});
+		
+		musicaSlide.addListener(new ChangeListener() {
+		    @Override
+		    public void changed(ChangeEvent event, Actor actor) {
+		        // Este método se llama cada vez que cambia el valor del slider
+		        float volume = musicaSlide.getValue(); // Obtener el valor del slider
+		        // Ajustar el volumen de la música a través del AudioManager u otro gestor de audio
+		        //audioManager.setMusicVolume(volume); // Suponiendo que tienes un gestor de audio llamado audioManager
+		        Config.musica=volume;
+		        Render.menuMusic.setVolume(volume/100);
+		    }
+		});
+		
+		
+		stage.addActor(musicaSlide);
+		stage.addActor(volumenSlide);
+		
+		resolucionesText = new Texto[4];
+		
+		resolucionesText[0]= new Texto(Recursos.FuenteMedieval, 16,Color.WHITE, false);
+		resolucionesText[1]= new Texto(Recursos.FuenteMedieval, 16,Color.WHITE, false);
+		resolucionesText[2]= new Texto(Recursos.FuenteMedieval, 16,Color.WHITE, false);
+		resolucionesText[3]= new Texto(Recursos.FuenteMedieval, 16,Color.WHITE, false);
+		
+		resolucionesText[0].setTexto("1280 * 720");
+		resolucionesText[0].setTexto("1920 * 1080");
+		resolucionesText[0].setTexto("1600 * 900");
+		resolucionesText[0].setTexto("1378 * 768");
+		
 	}
 
 	@Override
@@ -137,15 +199,13 @@ public class PantallaConfig implements Screen{
 		Render.LimpiarPantalla(1, 1, 1);
 		mouseX=entrada.getMouseX();
 		mouseY=entrada.getMouseY();
-		
+		stage.act(delta);
 		
 		b.begin();
 		
 		fondo.dibujar();
 		rectArriba.dibujar();
 		rectMedio.dibujar();
-		barraVolumen.dibujar();
-		esferaVolumen.dibujar();
 		musica.dibujar();
 		volumen.dibujar();
 		particulas.dibujar();
@@ -156,15 +216,14 @@ public class PantallaConfig implements Screen{
 		resoluciones.dibujar();
 		checkBoxes[0].dibujar();
 		checkBoxes[1].dibujar();
-		barraMusica.dibujar();
-		esferaMusica.dibujar();
 		salir.dibujar();
+		marcoTriangulo.dibujar();
 		
 		abrir1.dibujar();
 		abrir2.dibujar();
 		guardado.dibujar();
 		abrir1.dibujar();
-
+		stage.draw();
 		sr.begin(ShapeType.Line);
 		sr.setColor(Color.GOLD);
 		sr.rect(abrir1.getX()-5, abrir1.getY()-abrir1.getAlto()-10, abrir1.getAncho()+10, abrir1.getAlto()+15);
@@ -331,11 +390,12 @@ public class PantallaConfig implements Screen{
 
 	}
 	public void fadeGuardar() {
+		alphaGuardado-=0.01;
 		if(alphaGuardado<0) {
 			alphaGuardado=0;
 			dibujarGuardado=false;
 		}else {
-			alphaGuardado-=0.01;
+			
 			
 		}
 		guardado.setAlpha(alphaGuardado);

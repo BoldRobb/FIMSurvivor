@@ -14,8 +14,11 @@ public class Imagen {
 	private float alto, ancho;
 	private Vector2 esqAbajoIzq, esqArribaDer;
 	private boolean clicked = false;
-
-
+	float duracion=0.5f;
+	float timer=0;
+	boolean terminado=false;
+	float alpha=0;
+	
 	public Imagen(String ruta) {
 		t = new Texture (ruta);
 		s = new Sprite(t);
@@ -27,10 +30,33 @@ public class Imagen {
 		this.ancho=ancho;
 		this.alto=alto;
 	}
-	
+	public void update(float delta, Vector2 pos) {
+		this.setPosition(pos.x, pos.y+15);
+		if(!terminado) {
+			timer+=delta;
+			alpha+=.2;
+			
+			if(alpha<1) {
+				this.setAlpha(alpha);
+			}else {
+				this.setAlpha(1);
+			}
+			
+		}
+		if(timer>duracion) {
+			this.setAlpha(1);
+			terminado=true;
+		}
+	}
 	public void setTextura(String Ruta) {
 		Texture nt = new Texture(Ruta);
 		this.s.setTexture(nt);
+	}
+	public boolean isTerminado() {
+		return terminado;
+	}
+	public void setTerminado(boolean terminado) {
+		this.terminado = terminado;
 	}
 	
 	public void setSize(float ancho, float alto) {
@@ -41,6 +67,7 @@ public class Imagen {
 	public void dibujar() {
 		s.draw(Render.batch);
 	}
+	
 	public void setAlpha(float a) {
 		s.setAlpha(a);
 	}

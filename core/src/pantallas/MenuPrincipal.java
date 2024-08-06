@@ -2,11 +2,11 @@ package pantallas;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 
 import elementos.Imagen;
 import elementos.Texto;
@@ -19,7 +19,10 @@ public class MenuPrincipal implements Screen{
 
 	Imagen fondo;
 	Imagen marcos;
+	Imagen monedas;
+	Texto money;
 	SpriteBatch b;
+	
 	float alpha = 0, contTiempo=0;
 	int cont;
 	boolean alpha100=false, segundo= false;
@@ -31,9 +34,10 @@ public class MenuPrincipal implements Screen{
 	boolean opcmouse=false;
 	TecladoMouse entrada = new TecladoMouse();
 	Texto titulo;
-	
+	OrthographicCamera camera;
 	@Override
 	public void show() {
+		
 		b = Render.batch;
 		fondo= new Imagen(Recursos.FondoMenu, Config.ancho, Config.alto);
 		Gdx.input.setInputProcessor(entrada);
@@ -52,6 +56,13 @@ public class MenuPrincipal implements Screen{
         mejoras = new Texto(Recursos.FuenteMenu, 48, Color.WHITE, true);	
 		mejoras.setTexto("Mejoras");
 		mejoras.setPosition(((Config.ancho/2)+jugar.getAncho()-(mejoras.getAncho()/2)),  medioY-100);
+		
+		monedas = new Imagen(Recursos.monedas, 50, 50);
+		monedas.setPosition(25, Config.alto-monedas.getAlto()-25);
+		
+		money = new Texto(Recursos.FuenteMenu, 24, Color.WHITE, true);
+		money.setTexto(""+Config.money);
+		money.setPosition(monedas.getX()+monedas.getAncho()+10, monedas.getY()+monedas.getAlto()/2+money.getAlto()/2);
 		
 		configuracion = new Texto(Recursos.FuenteMenu, 48, Color.WHITE, true);
 		configuracion.setTexto("Configuración");
@@ -72,15 +83,24 @@ public class MenuPrincipal implements Screen{
 		titulo = new Texto(Recursos.FuenteMenu, 80, Color.GOLDENROD, true);
 		titulo.setTexto("FIM SURVIVOR");
 		titulo.setPosition(Config.ancho/2-titulo.getAncho()/2, 600);
+		camera = new OrthographicCamera();
+		camera.setToOrtho(false, Config.ancho,Config.alto);
+		Render.menuMusic.setLooping(true);
+		Render.menuMusic.play();
+		Render.gameMusic.stop();
 	}
 
 	@Override
 	public void render(float delta) {
 		// TODO Auto-generated method stub
+		camera.position.set(Config.ancho/2,Config.alto/2,0);
+		camera.update();
 		mouseX=entrada.getMouseX();
 		mouseY=entrada.getMouseY();
 		Render.LimpiarPantalla(0,0,0);
 		fade();
+		
+		b.setProjectionMatrix(camera.combined);
 		b.begin();
 			coords.setTexto("Coord x: "+mouseX+" Coord y: "+mouseY);
 			fondo.dibujar();
@@ -93,7 +113,8 @@ public class MenuPrincipal implements Screen{
 				salir.dibujar();
 				logros.dibujar();
 				titulo.dibujar();
-				
+				money.dibujar();
+				monedas.dibujar();
 				
 				//coords.dibujar();
 				
@@ -207,7 +228,9 @@ public class MenuPrincipal implements Screen{
 	}
 	
 	public void opcEnter() {
+		
 		if (entrada.isEnter() || (entrada.isMouse1()&& opcmouse)) {
+			Render.clickEffect.play();
 			switch (opc) {
 			case 0:
 				Render.app.setScreen(new PantallaLogro());

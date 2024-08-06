@@ -98,4 +98,7 @@ public class Texto {
 	public Vector2 getPosicion() {
 		return new Vector2(this.x, this.y);
 	}
+	public void setRainbow() {
+		this.setColor(null);
+	}
 }

@@ -22,13 +22,15 @@ public class PantallaMejoras  implements Screen{
 	Texto[] subir;
 	Texto[] opcion;
 	SpriteBatch b;
+	Imagen monedas;
+	Texto money;
 	Texto salir;
 	float contTiempo=0;
 	boolean segundo = false;
-	int opc=0,opcChar=0, mouseX, mouseY, cont, cantopc=1;
+	int opc=0,opcChar=0, mouseX, mouseY, cont, cantopc=9;
 	boolean opcmouse=false;
 	ShapeRenderer sr;
-	int cantMarcos=8, cantSubir=8;
+	int cantMarcos=8, cantSubir=9;
 	String obj, salud, velocidad, velocidadAtq;
 	TecladoMouse entrada = new TecladoMouse();
 	@Override
@@ -45,27 +47,33 @@ public class PantallaMejoras  implements Screen{
 		rectMedio.setPosition(250, 20);
 		rectMedio.setAlpha(0.9f);
 		
-
+		maestro = new Imagen(Recursos.SpriteAlumno, 128, 256);
+		
 
 		
 		marcos= new Imagen[cantMarcos];
 		subir= new Texto[cantSubir];
-
+		opcion = new Texto[cantopc];
 		crearMejoras();
 		
 		
-
+		monedas = new Imagen(Recursos.monedas, 50, 50);
+		monedas.setPosition(25, Config.alto-monedas.getAlto()-25);
+		
+		money = new Texto(Recursos.FuenteMenu, 24, Color.WHITE, true);
+		money.setTexto(""+Config.money);
+		money.setPosition(monedas.getX()+monedas.getAncho()+10, monedas.getY()+monedas.getAlto()/2+money.getAlto()/2);
 
 		
 		
 		salir = new Texto(Recursos.FuenteMenu, 40, Color.WHITE, true);
 		salir.setTexto("Volver");
-		salir.setPosition(Config.ancho - salir.getAncho()-20, Config.alto-30);
+		salir.setPosition(Config.ancho - salir.getAncho()-20, Config.alto-25);
 		
 		
 		sr= new ShapeRenderer();
 		
-		opcion = new Texto[cantopc];
+		
 		opcion[0]=salir;
 
 	}
@@ -76,7 +84,7 @@ public class PantallaMejoras  implements Screen{
 		mouseX=entrada.getMouseX();
 		mouseY=entrada.getMouseY();
 		
-		
+		money.setTexto(""+Config.money);
 		b.begin();
 		fondo.dibujar();
 		rectArriba.dibujar();
@@ -84,13 +92,16 @@ public class PantallaMejoras  implements Screen{
 
 
 		salir.dibujar();
-		
+		money.dibujar();
+		monedas.dibujar();
 
 		for (int i=0;i<marcos.length;i++) {
 			marcos[i].dibujar();
+			maestro.setPosition(marcos[i].getX()+10, marcos[i].getY()+5);
+			maestro.dibujar();
 		}
-		for (int i=0;i<subir.length;i++) {
-			subir[i].dibujar();
+		for (int i=1;i<opcion.length;i++) {
+			opcion[i].dibujar();
 		}
 
 		
@@ -168,6 +179,7 @@ public class PantallaMejoras  implements Screen{
 					
 			}
 		}
+		
 		if(cont>0) {
 			opcmouse=true;
 		}else{
@@ -190,6 +202,7 @@ public class PantallaMejoras  implements Screen{
 				break;
 
 			default:
+				Config.money-=100;
 				break;
 			}
 		}
@@ -231,10 +244,10 @@ public class PantallaMejoras  implements Screen{
 		marcos[7].setPosition(marcos[6].getEsqArribaDer().x+dif, marcos[3].getY()-marcos[3].getAlto()-60);
 		marcos[7].setAlpha(0.9f);
 		
-		for(int i=0; i<cantSubir;i++) {
-			subir[i] = new Texto(Recursos.FuenteMenu, 25, Color.WHITE, false);
-			subir[i].setTexto("Mejorar");
-			subir[i].setPosition(marcos[i].getX()+(-subir[i].getAncho()+marcos[i].getAncho())/2, marcos[i].getY()-10);
+		for(int i=1; i<cantSubir;i++) {
+			opcion[i] = new Texto(Recursos.FuenteMenu, 25, Color.WHITE, false);
+			opcion[i].setTexto("Mejorar");
+			opcion[i].setPosition(marcos[i-1].getX()+(-opcion[i].getAncho()+marcos[i-1].getAncho())/2, marcos[i-1].getY()-10);
 		}
 		
 	}

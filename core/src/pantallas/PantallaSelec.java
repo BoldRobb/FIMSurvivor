@@ -280,10 +280,13 @@ public class PantallaSelec implements Screen{
 				Render.app.setScreen(new MenuPrincipal());
 				break;
 			case 1:
-				Render.app.setScreen(new PantallaTutorial());
+				Render.app.setScreen(new PantallaTuto());
 				break;
 			case 2:
-				Render.app.setScreen(new PantallaPartida());
+				if(opcChar==2) {
+					opcChar=(int)Math.round( Math.random() );
+				}
+				Render.app.setScreen(new PantallaPartida(opcChar));
 				break;
 
 			default:
